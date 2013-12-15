@@ -1,6 +1,6 @@
 package com.theisenp.vicarious.provider;
 
-import javax.net.ssl.SSLEngineResult.Status;
+import twitter4j.Status;
 
 /**
  * Interface for an object that filters tweets
