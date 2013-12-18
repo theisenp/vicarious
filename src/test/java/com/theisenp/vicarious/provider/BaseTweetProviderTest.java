@@ -13,22 +13,20 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 
 /**
- * Unit tests for {@link SimpleTweetProvider}
+ * Unit tests for {@link BaseTweetProvider}
  * 
  * @author patrick.theisen
  */
-public class SimpleTweetProviderTest {
+public class BaseTweetProviderTest {
 
 	@Test
 	public void testProvideTweets() {
 		Twitter twitter = mock(Twitter.class);
-		String user = "user";
 		TweetFetcher fetcher = mock(TweetFetcher.class);
-		SimpleTweetProvider provider =
-				new SimpleTweetProvider(twitter, user, fetcher);
+		BaseTweetProvider provider = new BaseTweetProvider(twitter, fetcher);
 
 		List<Status> tweets = new ArrayList<Status>();
-		when(fetcher.fetch(twitter, user)).thenReturn(tweets);
+		when(fetcher.fetch(twitter)).thenReturn(tweets);
 
 		assertThat(provider.getTweets()).isEqualTo(tweets);
 	}
