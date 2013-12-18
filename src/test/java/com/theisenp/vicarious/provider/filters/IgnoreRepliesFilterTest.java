@@ -1,10 +1,12 @@
-package com.theisenp.vicarious.provider;
+package com.theisenp.vicarious.provider.filters;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.Test;
+
+import com.theisenp.vicarious.provider.filters.IgnoreRepliesFilter;
 
 import twitter4j.Status;
 

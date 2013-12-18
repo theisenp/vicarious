@@ -1,4 +1,4 @@
-package com.theisenp.vicarious.provider;
+package com.theisenp.vicarious.provider.filters;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -8,6 +8,9 @@ import static org.mockito.Mockito.when;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import com.theisenp.vicarious.provider.TweetFilter;
+import com.theisenp.vicarious.provider.filters.CompositeTweetFilter;
 
 import twitter4j.Status;
 

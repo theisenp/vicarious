@@ -1,4 +1,6 @@
-package com.theisenp.vicarious.provider;
+package com.theisenp.vicarious.provider.filters;
+
+import com.theisenp.vicarious.provider.TweetFilter;
 
 import twitter4j.Status;
 

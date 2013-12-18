@@ -1,8 +1,10 @@
-package com.theisenp.vicarious.provider;
+package com.theisenp.vicarious.provider.filters;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+
+import com.theisenp.vicarious.provider.TweetFilter;
 
 import twitter4j.Status;
 
