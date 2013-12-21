@@ -1,4 +1,4 @@
-package com.theisenp.vicarious.provider.user;
+package com.theisenp.vicarious.provider;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -16,7 +16,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-import com.theisenp.vicarious.provider.MockResponseList;
+import com.theisenp.vicarious.provider.UserAllTweetsFetcher;
 
 /**
  * Unit tests for {@link UserAllTweetsFetcher}

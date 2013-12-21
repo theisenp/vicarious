@@ -1,4 +1,4 @@
-package com.theisenp.vicarious.provider.user;
+package com.theisenp.vicarious.provider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,6 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-import com.theisenp.vicarious.provider.TweetFetcher;
-import com.theisenp.vicarious.provider.TweetFilter;
 import com.theisenp.vicarious.provider.filters.CompositeTweetFilter;
 import com.theisenp.vicarious.provider.filters.IgnoreRepliesFilter;
 import com.theisenp.vicarious.provider.filters.IgnoreRetweetsFilter;
