@@ -1,5 +1,6 @@
 package com.theisenp.vicarious;
 
+import com.theisenp.vicarious.logger.TweetLogger;
 import com.theisenp.vicarious.modifier.TweetModifier;
 import com.theisenp.vicarious.provider.TweetProvider;
 import com.theisenp.vicarious.publisher.TweetPublisher;
@@ -26,4 +27,9 @@ public interface VicariousFactory {
 	 * @return An instance of {@link TweetPublisher}
 	 */
 	public TweetPublisher getTweetPublisher();
+
+	/**
+	 * @return An optional instance of {@link TweetLogger}
+	 */
+	public TweetLogger getTweetLogger();
 }
