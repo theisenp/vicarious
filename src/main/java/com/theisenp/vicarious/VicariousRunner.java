@@ -6,8 +6,10 @@ import java.util.List;
 import twitter4j.Status;
 import twitter4j.StatusUpdate;
 
+import com.theisenp.vicarious.logger.TweetLogger;
 import com.theisenp.vicarious.modifier.TweetModifier;
 import com.theisenp.vicarious.provider.TweetProvider;
+import com.theisenp.vicarious.publisher.PublishSuccessListener;
 import com.theisenp.vicarious.publisher.TweetPublisher;
 
 /**
@@ -27,25 +29,90 @@ public class VicariousRunner {
 	public static void run(VicariousFactory factory) {
 		// Get the tweets
 		TweetProvider provider = factory.getTweetProvider();
-		List<Status> originalTweets = provider.getTweets();
-		if(originalTweets == null || originalTweets.isEmpty()) {
+		List<Status> originals = provider.getTweets();
+		if(originals == null || originals.isEmpty()) {
 			return;
 		}
 
 		// Modify the tweets
 		TweetModifier modifier = factory.getTweetModifier();
-		List<StatusUpdate> modifiedTweets = new ArrayList<StatusUpdate>();
-		for(Status originalTweet : originalTweets) {
-			StatusUpdate modifiedTweet = modifier.modify(originalTweet);
-			if(modifiedTweet != null) {
-				modifiedTweets.add(modifiedTweet);
+		List<TweetPair> tweetPairs = new ArrayList<TweetPair>();
+		for(Status original : originals) {
+			StatusUpdate response = modifier.modify(original);
+			if(response != null) {
+				tweetPairs.add(new TweetPair(original, response));
 			}
 		}
 
 		// Publish the tweets
 		TweetPublisher publisher = factory.getTweetPublisher();
-		for(StatusUpdate modifiedTweet : modifiedTweets) {
-			publisher.publish(modifiedTweet);
+		TweetLogger logger = factory.getTweetLogger();
+		if(logger == null) {
+			for(TweetPair tweetPair : tweetPairs) {
+				publisher.publish(tweetPair.response);
+			}
+		}
+		else {
+			for(TweetPair tweetPair : tweetPairs) {
+				publisher.publish(tweetPair.response, new LoggingListener(
+						logger, tweetPair.original));
+			}
+		}
+	}
+
+	/**
+	 * Struct holding an original tweet and the associated response
+	 * 
+	 * @author patrick.theisen
+	 */
+	private static class TweetPair {
+
+		// Data
+		public final Status original;
+		public final StatusUpdate response;
+
+		/**
+		 * @param original
+		 * The original tweet
+		 * @param response
+		 * The response tweet
+		 */
+		public TweetPair(Status original, StatusUpdate response) {
+			this.original = original;
+			this.response = response;
+		}
+	}
+
+	/**
+	 * Implementation of {@link PublishSuccessListener} that logs successful
+	 * tweets
+	 * 
+	 * @author patrick.theisen
+	 */
+	private static class LoggingListener implements PublishSuccessListener {
+
+		// Data
+		private final TweetLogger logger;
+		private final Status original;
+
+		/**
+		 * @param logger
+		 * The logger to use
+		 * @param original
+		 * The original tweet associated with the expected response
+		 */
+		public LoggingListener(TweetLogger logger, Status original) {
+			this.logger = logger;
+			this.original = original;
+		}
+
+		@Override
+		public void onPublishSuccess(StatusUpdate tweet) {
+			logger.log(original, tweet);
+		}
+
+		@Override
+		public void onPublishFailure(StatusUpdate tweet) {
 		}
 	}
 }
