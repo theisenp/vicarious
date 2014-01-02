@@ -25,8 +25,8 @@ import com.theisenp.vicarious.provider.filters.LatestTimeFilter;
 public class UserTweetsFetcher implements TweetFetcher {
 
 	// Constants
-	private static final DateTime DEFAULT_EARLIEST = new DateTime(0);
-	private static final DateTime DEFAULT_LATEST = new DateTime(Long.MAX_VALUE);
+	public static final DateTime DEFAULT_EARLIEST = new DateTime(0);
+	public static final DateTime DEFAULT_LATEST = new DateTime(Long.MAX_VALUE);
 	private static final int MAX_PAGE_SIZE = 100;
 
 	// Data

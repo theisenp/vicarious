@@ -164,7 +164,7 @@ public class UserTweetsFetcherTest {
 		UserTweetsFetcher fetcher =
 				new UserTweetsFetcher(TEST_USER, TEST_TIME_EXACT);
 
-		// Split tweets across multiple pages
+		// Return a single page of tweets
 		ResponseList<Status> firstPage = new MockResponseList<Status>();
 		when(twitter.getUserTimeline(anyString(), any(Paging.class)))
 				.thenReturn(firstPage).thenThrow(new IllegalStateException());
@@ -188,7 +188,7 @@ public class UserTweetsFetcherTest {
 				new UserTweetsFetcher(TEST_USER, TEST_TIME_EXACT,
 						TEST_TIME_EXACT);
 
-		// Split tweets across multiple pages
+		// Return a single page of tweets
 		ResponseList<Status> firstPage = new MockResponseList<Status>();
 		ResponseList<Status> emptyPage = new MockResponseList<Status>();
 		when(twitter.getUserTimeline(anyString(), any(Paging.class)))
@@ -213,7 +213,7 @@ public class UserTweetsFetcherTest {
 				new UserTweetsFetcher(TEST_USER, TEST_TIME_EXACT,
 						TEST_TIME_EXACT);
 
-		// Split tweets across multiple pages
+		// Return a single page of tweets
 		ResponseList<Status> firstPage = new MockResponseList<Status>();
 		when(twitter.getUserTimeline(anyString(), any(Paging.class)))
 				.thenReturn(firstPage).thenThrow(new IllegalStateException());
