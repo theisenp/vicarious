@@ -6,10 +6,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 import twitter4j.Status;
 import twitter4j.StatusUpdate;
@@ -30,12 +33,12 @@ public class VicariousRunnerTest {
 	@Test
 	public void testRunWithoutLogger() {
 		// Mock a tweet provider
-		Status firstOriginal = mock(Status.class);
-		Status secondOriginal = mock(Status.class);
-		Status thirdOriginal = mock(Status.class);
+		Status firstOriginal = mockTweet(0);
+		Status secondOriginal = mockTweet(1);
+		Status thirdOriginal = mockTweet(2);
 		TweetProvider provider = mock(TweetProvider.class);
 		when(provider.getTweets()).thenReturn(
-				Arrays.asList(firstOriginal, secondOriginal, thirdOriginal));
+				Arrays.asList(thirdOriginal, secondOriginal, firstOriginal));
 
 		// Mock a tweet modifier
 		StatusUpdate firstResponse = new StatusUpdate("first");
@@ -56,19 +59,20 @@ public class VicariousRunnerTest {
 
 		// Run the loop
 		VicariousRunner.run(factory);
-		verify(publisher, times(1)).publish(firstResponse);
-		verify(publisher, times(1)).publish(secondResponse);
+		InOrder inOrder = Mockito.inOrder(publisher);
+		inOrder.verify(publisher, times(1)).publish(firstResponse);
+		inOrder.verify(publisher, times(1)).publish(secondResponse);
 	}
 
 	@Test
 	public void testRunWithLogger() {
 		// Mock a tweet provider
-		Status firstOriginal = mock(Status.class);
-		Status secondOriginal = mock(Status.class);
-		Status thirdOriginal = mock(Status.class);
+		Status firstOriginal = mockTweet(0);
+		Status secondOriginal = mockTweet(1);
+		Status thirdOriginal = mockTweet(2);
 		TweetProvider provider = mock(TweetProvider.class);
 		when(provider.getTweets()).thenReturn(
-				Arrays.asList(firstOriginal, secondOriginal, thirdOriginal));
+				Arrays.asList(thirdOriginal, secondOriginal, firstOriginal));
 
 		// Mock a tweet modifier
 		StatusUpdate firstResponse = new StatusUpdate("first");
@@ -97,6 +101,17 @@ public class VicariousRunnerTest {
 		verify(logger, times(1)).log(firstOriginal, firstResponse);
 		verify(logger, times(0)).log(secondOriginal, secondResponse);
 		verify(logger, times(0)).log(thirdOriginal, null);
+	}
+
+	/**
+	 * @param millis
+	 * The time at which the tweet was created
+	 * @return A tweet created at the given time
+	 */
+	private static Status mockTweet(long millis) {
+		Status tweet = mock(Status.class);
+		when(tweet.getCreatedAt()).thenReturn(new Date(millis));
+		return tweet;
 	}
 
 	/**

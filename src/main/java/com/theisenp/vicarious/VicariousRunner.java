@@ -1,6 +1,8 @@
 package com.theisenp.vicarious;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import twitter4j.Status;
@@ -11,6 +13,7 @@ import com.theisenp.vicarious.modifier.TweetModifier;
 import com.theisenp.vicarious.provider.TweetProvider;
 import com.theisenp.vicarious.publisher.PublishSuccessListener;
 import com.theisenp.vicarious.publisher.TweetPublisher;
+import com.theisenp.vicarious.util.TweetDateComparator;
 
 /**
  * Static utility for running the vicarious loop
@@ -33,6 +36,10 @@ public class VicariousRunner {
 		if(originals == null || originals.isEmpty()) {
 			return;
 		}
+
+		// Sort the tweets from oldest to newest
+		Comparator<Status> comparator = new TweetDateComparator();
+		Collections.sort(originals, comparator);
 
 		// Modify the tweets
 		TweetModifier modifier = factory.getTweetModifier();
