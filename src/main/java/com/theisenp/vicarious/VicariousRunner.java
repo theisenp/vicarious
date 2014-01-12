@@ -62,16 +62,22 @@ public class VicariousRunner {
 		// Publish the tweets
 		TweetPublisher publisher = factory.getTweetPublisher();
 		TweetLogger logger = factory.getTweetLogger();
-		if(logger == null) {
-			for(TweetPair tweetPair : tweetPairs) {
-				publisher.publish(tweetPair.response);
+		try {
+			if(logger == null) {
+				for(TweetPair tweetPair : tweetPairs) {
+					publisher.publish(tweetPair.response);
+				}
+			}
+			else {
+				for(TweetPair tweetPair : tweetPairs) {
+					publisher.publish(tweetPair.response, new LoggingListener(
+							logger, tweetPair.original));
+				}
 			}
 		}
-		else {
-			for(TweetPair tweetPair : tweetPairs) {
-				publisher.publish(tweetPair.response, new LoggingListener(
-						logger, tweetPair.original));
-			}
+		catch(TwitterException exception) {
+			exception.printStackTrace();
+			return;
 		}
 	}
 
@@ -124,10 +130,6 @@ public class VicariousRunner {
 		@Override
 		public void onPublishSuccess(StatusUpdate tweet) {
 			logger.log(original, tweet);
-		}
-
-		@Override
-		public void onPublishFailure(StatusUpdate tweet) {
 		}
 	}
 }

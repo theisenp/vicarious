@@ -23,22 +23,16 @@ public class BlockingTweetPublisher implements TweetPublisher {
 	}
 
 	@Override
-	public void publish(StatusUpdate tweet) {
+	public void publish(StatusUpdate tweet) throws TwitterException {
 		publish(tweet, null);
 	}
 
 	@Override
-	public void publish(StatusUpdate tweet, PublishSuccessListener listener) {
-		try {
-			twitter.updateStatus(tweet);
-			if(listener != null) {
-				listener.onPublishSuccess(tweet);
-			}
-		}
-		catch(TwitterException exception) {
-			if(listener != null) {
-				listener.onPublishFailure(tweet);
-			}
+	public void publish(StatusUpdate tweet, PublishSuccessListener listener)
+			throws TwitterException {
+		twitter.updateStatus(tweet);
+		if(listener != null) {
+			listener.onPublishSuccess(tweet);
 		}
 	}
 }

@@ -16,12 +16,4 @@ public interface PublishSuccessListener {
 	 * The tweet that was published
 	 */
 	public void onPublishSuccess(StatusUpdate tweet);
-
-	/**
-	 * Called when there is a failure publishing a tweet
-	 * 
-	 * @param tweet
-	 * The tweet that could not be published
-	 */
-	public void onPublishFailure(StatusUpdate tweet);
 }

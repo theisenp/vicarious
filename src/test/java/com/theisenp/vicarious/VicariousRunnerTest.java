@@ -132,12 +132,13 @@ public class VicariousRunnerTest {
 		}
 
 		@Override
-		public void publish(StatusUpdate tweet, PublishSuccessListener listener) {
+		public void publish(StatusUpdate tweet, PublishSuccessListener listener)
+				throws TwitterException {
 			if(successfulTweets.contains(tweet)) {
 				listener.onPublishSuccess(tweet);
 			}
 			else {
-				listener.onPublishFailure(tweet);
+				throw mock(TwitterException.class);
 			}
 		}
 
