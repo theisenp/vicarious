@@ -75,33 +75,28 @@ public class UserTweetsFetcher implements TweetFetcher {
 	}
 
 	@Override
-	public List<Status> fetch(Twitter twitter) {
+	public List<Status> fetch(Twitter twitter) throws TwitterException {
 		List<Status> result = new ArrayList<Status>();
 
-		try {
-			for(int page = 1;; page++) {
-				// Fetch the next page of tweets
-				Paging paging = new Paging(page, MAX_PAGE_SIZE);
-				List<Status> tweets = twitter.getUserTimeline(user, paging);
+		for(int page = 1;; page++) {
+			// Fetch the next page of tweets
+			Paging paging = new Paging(page, MAX_PAGE_SIZE);
+			List<Status> tweets = twitter.getUserTimeline(user, paging);
 
-				// If there are no tweets, stop looking
-				if(tweets.isEmpty()) {
-					break;
-				}
-
-				// Filter the tweets and add them to the result
-				result.addAll(filter(tweets));
-
-				// If the earliest tweet is too early, stop looking
-				Status earliestTweet = tweets.get(tweets.size() - 1);
-				DateTime tweetTime = new DateTime(earliestTweet.getCreatedAt());
-				if(tweetTime.isBefore(earliestTime)) {
-					break;
-				}
+			// If there are no tweets, stop looking
+			if(tweets.isEmpty()) {
+				break;
 			}
-		}
-		catch(TwitterException exception) {
-			return result;
+
+			// Filter the tweets and add them to the result
+			result.addAll(filter(tweets));
+
+			// If the earliest tweet is too early, stop looking
+			Status earliestTweet = tweets.get(tweets.size() - 1);
+			DateTime tweetTime = new DateTime(earliestTweet.getCreatedAt());
+			if(tweetTime.isBefore(earliestTime)) {
+				break;
+			}
 		}
 
 		return result;

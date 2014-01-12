@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 
 import twitter4j.Status;
 import twitter4j.StatusUpdate;
+import twitter4j.TwitterException;
 
 import com.theisenp.vicarious.logger.TweetLogger;
 import com.theisenp.vicarious.modifier.TweetModifier;
@@ -31,7 +32,7 @@ import com.theisenp.vicarious.publisher.TweetPublisher;
 public class VicariousRunnerTest {
 
 	@Test
-	public void testRunWithoutLogger() {
+	public void testRunWithoutLogger() throws TwitterException {
 		// Mock a tweet provider
 		Status firstOriginal = mockTweet(0);
 		Status secondOriginal = mockTweet(1);
@@ -65,7 +66,7 @@ public class VicariousRunnerTest {
 	}
 
 	@Test
-	public void testRunWithLogger() {
+	public void testRunWithLogger() throws TwitterException {
 		// Mock a tweet provider
 		Status firstOriginal = mockTweet(0);
 		Status secondOriginal = mockTweet(1);

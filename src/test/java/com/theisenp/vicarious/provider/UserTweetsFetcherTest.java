@@ -9,7 +9,9 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import twitter4j.Paging;
 import twitter4j.ResponseList;
@@ -24,6 +26,9 @@ import twitter4j.TwitterException;
  */
 @SuppressWarnings("unchecked")
 public class UserTweetsFetcherTest {
+
+	@Rule
+	public final ExpectedException thrown = ExpectedException.none();
 
 	// Constants
 	private static final String TEST_USER = "user";
@@ -243,8 +248,8 @@ public class UserTweetsFetcherTest {
 		when(twitter.getUserTimeline(anyString(), any(Paging.class)))
 				.thenThrow(mock(TwitterException.class));
 
-		List<Status> result = fetcher.fetch(twitter);
-		assertThat(result).isEmpty();
+		thrown.expect(TwitterException.class);
+		fetcher.fetch(twitter);
 	}
 
 	@Test
@@ -264,8 +269,8 @@ public class UserTweetsFetcherTest {
 			firstPage.add(tweet);
 		}
 
-		List<Status> result = fetcher.fetch(twitter);
-		assertThat(result).hasSize(100).containsOnly(firstPage.toArray());
+		thrown.expect(TwitterException.class);
+		fetcher.fetch(twitter);
 	}
 
 	/**

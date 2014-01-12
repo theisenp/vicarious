@@ -4,6 +4,7 @@ import java.util.List;
 
 import twitter4j.Status;
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 
 /**
  * Provides tweets by fetching them from Twitter
@@ -28,7 +29,7 @@ public class BaseTweetProvider implements TweetProvider {
 	}
 
 	@Override
-	public List<Status> getTweets() {
+	public List<Status> getTweets() throws TwitterException {
 		return fetcher.fetch(twitter);
 	}
 }

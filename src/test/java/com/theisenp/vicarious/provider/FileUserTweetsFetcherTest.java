@@ -14,7 +14,9 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import twitter4j.Paging;
 import twitter4j.ResponseList;
@@ -29,6 +31,9 @@ import twitter4j.TwitterException;
  */
 @SuppressWarnings("unchecked")
 public class FileUserTweetsFetcherTest {
+
+	@Rule
+	public final ExpectedException thrown = ExpectedException.none();
 
 	// Constants
 	private static final String USER = "test";
@@ -53,7 +58,7 @@ public class FileUserTweetsFetcherTest {
 	}
 
 	@Test
-	public void testFileDoesNotExist() throws TwitterException {
+	public void testFileDoesNotExist() throws TwitterException, IOException {
 		// Return a single page of tweets
 		Twitter twitter = mock(Twitter.class);
 		ResponseList<Status> firstPage = new MockResponseList<Status>();
@@ -82,27 +87,8 @@ public class FileUserTweetsFetcherTest {
 		file.createNewFile();
 		file.setReadable(false);
 
-		// Return a single page of tweets
-		Twitter twitter = mock(Twitter.class);
-		ResponseList<Status> firstPage = new MockResponseList<Status>();
-		ResponseList<Status> emptyPage = new MockResponseList<Status>();
-		when(twitter.getUserTimeline(anyString(), any(Paging.class)))
-				.thenReturn(firstPage, emptyPage);
-
-		// Fill the page
-		Status lateTweet = mockTweet();
-		Status exactTweet = mockTweet();
-		Status earlyTweet = mockTweet();
-		when(lateTweet.getCreatedAt()).thenReturn(TEST_TIME_LATE.toDate());
-		when(exactTweet.getCreatedAt()).thenReturn(TEST_TIME_EXACT.toDate());
-		when(earlyTweet.getCreatedAt()).thenReturn(TEST_TIME_EARLY.toDate());
-		firstPage.add(lateTweet);
-		firstPage.add(exactTweet);
-		firstPage.add(earlyTweet);
-
-		TweetFetcher fetcher = new FileUserTweetsFetcher(USER, file);
-		List<Status> result = fetcher.fetch(twitter);
-		assertThat(result).hasSize(3).containsOnly(firstPage.toArray());
+		thrown.expect(IOException.class);
+		new FileUserTweetsFetcher(USER, file);
 	}
 
 	@Test

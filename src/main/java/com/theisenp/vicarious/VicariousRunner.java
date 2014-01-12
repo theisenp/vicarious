@@ -7,6 +7,7 @@ import java.util.List;
 
 import twitter4j.Status;
 import twitter4j.StatusUpdate;
+import twitter4j.TwitterException;
 
 import com.theisenp.vicarious.logger.TweetLogger;
 import com.theisenp.vicarious.modifier.TweetModifier;
@@ -32,8 +33,15 @@ public class VicariousRunner {
 	public static void run(VicariousFactory factory) {
 		// Get the tweets
 		TweetProvider provider = factory.getTweetProvider();
-		List<Status> originals = provider.getTweets();
-		if(originals == null || originals.isEmpty()) {
+		List<Status> originals = null;
+		try {
+			originals = provider.getTweets();
+			if(originals == null || originals.isEmpty()) {
+				return;
+			}
+		}
+		catch(TwitterException exception) {
+			exception.printStackTrace();
 			return;
 		}
 

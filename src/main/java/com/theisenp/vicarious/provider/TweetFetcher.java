@@ -4,6 +4,7 @@ import java.util.List;
 
 import twitter4j.Status;
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 
 /**
  * Interface for an object that fetches tweets from Twitter. The number, type,
@@ -14,9 +15,10 @@ import twitter4j.Twitter;
 public interface TweetFetcher {
 
 	/**
-	 * Fetches tweets based on some internal strategy
-	 * 
 	 * @param twitter
+	 * An instance of the Twitter API
+	 * @return Tweets fetched based on som einternal strategy
+	 * @throws TwitterException
 	 */
-	public List<Status> fetch(Twitter twitter);
+	public List<Status> fetch(Twitter twitter) throws TwitterException;
 }
