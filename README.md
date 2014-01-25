@@ -3,8 +3,12 @@ Vicarious
 
 Vicarious is a library for automatically fetching tweets, optionally modifying their contents, and then reposting them. Clients can use the default implementations for fetching, modifying, posting, and logging tweets or can provide their own implementations. Vicarious is based on the [Twitter4J][1] library.
 
-Design
-------
+Usage
+-----
+
+### Configuration ###
+
+Because Vicarious depends on Twitter4J, clients must provide their Twitter API keys. There are a few different ways to do this, one of which is to store the information in a `twitter4j.properties` file in the project directory. More information on the various ways to configure Twitter4J can be found [here][2].
 
 ### Components ###
 
@@ -142,18 +146,18 @@ public class Example {
 }
 ```
 
-_Note: Running single instances of the loop is ok for testing, but it's often more useful to schedule the Vicarious application to run regularly as a [cron][2] job._
+_Note: Running single instances of the loop is ok for testing, but it's often more useful to schedule the Vicarious application to run regularly as a [cron][3] job._
 
 
 Build
 -----
 
-Vicarious is built with [Maven][3]. To build the project and install it in your local Maven repositiory, type:
+Vicarious is built with [Maven][4]. To build the project and install it in your local Maven repositiory, type:
 
 	mvn clean install
 
-Usage
------
+Download
+--------
 
 To include Vicarious in another Maven project, add the following dependency to the project's `pom.xml`:
 
@@ -189,5 +193,6 @@ License
 
 
 [1]: http://twitter4j.org/en/index.html
-[2]: http://en.wikipedia.org/wiki/Cron
-[3]: http://maven.apache.org/
+[2]: http://twitter4j.org/en/configuration.html
+[3]: http://en.wikipedia.org/wiki/Cron
+[4]: http://maven.apache.org/
