@@ -23,55 +23,41 @@ import com.theisenp.vicarious.provider.filters.LatestTimeFilter;
  * 
  * @author patrick.theisen
  */
-public class QueryTweetFetcher extends IntervalTweetFetcher {
+public class QueryTweetFetcher implements IntervalTweetFetcher {
 
 	// Constants
 	private static final int MAX_COUNT = 100;
 
 	// Data
 	private final String query;
-	private final TweetFilter intervalFilter;
 
 	/**
 	 * @param query
 	 * The query string
 	 */
 	public QueryTweetFetcher(String query) {
-		this(query, DEFAULT_EARLIEST);
-	}
-
-	/**
-	 * @param query
-	 * The query string
-	 * @param earliestTime
-	 * The earliest time for which to fetch tweets, inclusive
-	 */
-	public QueryTweetFetcher(String query, DateTime earliestTime) {
-		this(query, earliestTime, DEFAULT_LATEST);
-	}
-
-	/**
-	 * @param query
-	 * The query string
-	 * @param earliestTime
-	 * The earliest time for which to fetch tweets, inclusive
-	 * @param latestTime
-	 * The latest time for which to fetch tweets, inclusive
-	 */
-	public QueryTweetFetcher(String query, DateTime earliestTime,
-			DateTime latestTime) {
-		super(earliestTime, latestTime);
 		this.query = query;
-
-		// Build the interval filter
-		TweetFilter earlyFilter = new EarliestTimeFilter(earliestTime);
-		TweetFilter lateFilter = new LatestTimeFilter(latestTime);
-		this.intervalFilter = new CompositeTweetFilter(earlyFilter, lateFilter);
 	}
 
 	@Override
-	protected List<Status> fetchInternal(Twitter twitter,
-			DateTime earliestTime, DateTime latestTime) throws TwitterException {
+	public List<Status> fetch(Twitter twitter) throws TwitterException {
+		return fetch(twitter, DEFAULT_EARLIEST);
+	}
+
+	@Override
+	public List<Status> fetch(Twitter twitter, DateTime earliestTime)
+			throws TwitterException {
+		return fetch(twitter, earliestTime, DEFAULT_LATEST);
+	}
+
+	@Override
+	public List<Status> fetch(Twitter twitter, DateTime earliestTime,
+			DateTime latestTime) throws TwitterException {
+		// Build the interval filter
+		TweetFilter earlyFilter = new EarliestTimeFilter(earliestTime);
+		TweetFilter lateFilter = new LatestTimeFilter(latestTime);
+		TweetFilter filter = new CompositeTweetFilter(earlyFilter, lateFilter);
+
 		// Compute the query's upper bound
 		DateTime now = DateTime.now();
 		boolean isFuture = latestTime.isAfter(now);
@@ -84,29 +70,35 @@ public class QueryTweetFetcher extends IntervalTweetFetcher {
 		query.setUntil(formatDateTime(upperBound));
 
 		// Execute the queries
-		QueryResult result = null;
-		List<Status> tweets = new ArrayList<Status>();
-		while(result == null || result.hasNext()) {
-			// Execute the current query
-			result = twitter.search(query);
-			for(Status tweet : result.getTweets()) {
+		QueryResult queryResult = null;
+		List<Status> result = new ArrayList<Status>();
+		while(queryResult == null || queryResult.hasNext()) {
+			queryResult = twitter.search(query);
+			List<Status> tweets = queryResult.getTweets();
+
+			// If there are no tweets, stop looking
+			if(tweets.isEmpty()) {
+				break;
+			}
+
+			for(Status tweet : tweets) {
 				// If the tweet is too early, stop looking
 				if(new DateTime(tweet.getCreatedAt()).isBefore(earliestTime)) {
-					return tweets;
+					return result;
 				}
-				
+
 				// Filter the tweet and add it to the result
-				if(intervalFilter.filter(tweet)) {
-					tweets.add(tweet);
+				if(filter.filter(tweet)) {
+					result.add(tweet);
 				}
 			}
-			
+
 			// Get the next query
-			if(result.hasNext()) {
-				query = result.nextQuery();
+			if(queryResult.hasNext()) {
+				query = queryResult.nextQuery();
 			}
 		}
 
-		return tweets;
+		return result;
 	}
 }

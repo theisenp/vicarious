@@ -49,13 +49,12 @@ public class QueryTweetFetcherTest {
 
 	@Test
 	public void testSearchSinglePageOutsideBounds() throws TwitterException {
-		DateTime early = new DateTime(100);
-		TweetFetcher fetcher = new QueryTweetFetcher("", early);
+		IntervalTweetFetcher fetcher = new QueryTweetFetcher("");
 
 		// Mock a page of results
 		List<Status> firstPage = new ArrayList<Status>();
-		for(int i = 1; i <= 100; i++) {
-			firstPage.add(mockTweet(early.minusMillis(i)));
+		for(int i = 0; i < 100; i++) {
+			firstPage.add(mockTweet(new DateTime(i)));
 		}
 
 		// Mock the query result
@@ -67,14 +66,13 @@ public class QueryTweetFetcherTest {
 		Twitter twitter = mock(Twitter.class);
 		when(twitter.search(any(Query.class))).thenReturn(result);
 
-		assertThat(fetcher.fetch(twitter)).isEmpty();
+		DateTime early = new DateTime(100);
+		assertThat(fetcher.fetch(twitter, early)).isEmpty();
 	}
 
 	@Test
 	public void testSearchSinglePageInsideBounds() throws TwitterException {
-		DateTime early = new DateTime(25);
-		DateTime late = new DateTime(75);
-		TweetFetcher fetcher = new QueryTweetFetcher("", early, late);
+		IntervalTweetFetcher fetcher = new QueryTweetFetcher("");
 
 		// Mock a page of results
 		List<Status> firstPage = new ArrayList<Status>();
@@ -96,21 +94,21 @@ public class QueryTweetFetcherTest {
 		Twitter twitter = mock(Twitter.class);
 		when(twitter.search(any(Query.class))).thenReturn(result);
 
-		assertThat(fetcher.fetch(twitter)).isEqualTo(expected);
+		DateTime early = new DateTime(25);
+		DateTime late = new DateTime(75);
+		assertThat(fetcher.fetch(twitter, early, late)).isEqualTo(expected);
 	}
 
 	@Test
 	public void testSearchMultiplePagesOutsideBounds() throws TwitterException {
-		DateTime early = new DateTime(100);
-		DateTime late = new DateTime(200);
-		TweetFetcher fetcher = new QueryTweetFetcher("", early, late);
+		IntervalTweetFetcher fetcher = new QueryTweetFetcher("");
 
 		// Mock two pages of results
 		List<Status> firstPage = new ArrayList<Status>();
 		List<Status> secondPage = new ArrayList<Status>();
 		for(int i = 1; i <= 100; i++) {
-			firstPage.add(mockTweet(late.plusMillis(i)));
-			secondPage.add(mockTweet(early.minusMillis(i)));
+			firstPage.add(mockTweet(new DateTime(301 - i)));
+			secondPage.add(mockTweet(new DateTime(100 - i)));
 		}
 
 		// Mock the query result
@@ -129,16 +127,16 @@ public class QueryTweetFetcherTest {
 		when(twitter.search(any(Query.class))).thenReturn(firstResult)
 				.thenReturn(secondResult);
 
-		assertThat(fetcher.fetch(twitter)).isEmpty();
+		DateTime early = new DateTime(100);
+		DateTime late = new DateTime(200);
+		assertThat(fetcher.fetch(twitter, early, late)).isEmpty();
 		verify(firstResult, times(1)).getTweets();
 		verify(secondResult, times(1)).getTweets();
 	}
 
 	@Test
 	public void testSearchMultiplePagesInsideBounds() throws TwitterException {
-		DateTime early = new DateTime(50);
-		DateTime late = new DateTime(150);
-		TweetFetcher fetcher = new QueryTweetFetcher("", early, late);
+		IntervalTweetFetcher fetcher = new QueryTweetFetcher("");
 
 		// Mock the first page of results
 		List<Status> firstPage = new ArrayList<Status>();
@@ -177,7 +175,9 @@ public class QueryTweetFetcherTest {
 		when(twitter.search(any(Query.class))).thenReturn(firstResult)
 				.thenReturn(secondResult);
 
-		assertThat(fetcher.fetch(twitter)).isEqualTo(expected);
+		DateTime early = new DateTime(50);
+		DateTime late = new DateTime(150);
+		assertThat(fetcher.fetch(twitter, early, late)).isEqualTo(expected);
 		verify(firstResult, times(1)).getTweets();
 		verify(secondResult, times(1)).getTweets();
 	}
