@@ -22,62 +22,45 @@ import com.theisenp.vicarious.provider.filters.LatestTimeFilter;
  * 
  * @author patrick.theisen
  */
-public class UserTweetsFetcher implements TweetFetcher {
+public class TimelineTweetFetcher implements IntervalTweetFetcher {
 
 	// Constants
-	public static final DateTime DEFAULT_EARLIEST = new DateTime(0);
-	public static final DateTime DEFAULT_LATEST = new DateTime(Long.MAX_VALUE);
 	private static final int MAX_PAGE_SIZE = 100;
 
 	// Data
 	private final String user;
-	private final DateTime earliestTime;
-	private final TweetFilter filter;
 
 	/**
 	 * @param user
 	 * The user for whom to fetch tweets
 	 */
-	public UserTweetsFetcher(String user) {
-		this(user, DEFAULT_EARLIEST);
-	}
-
-	/**
-	 * @param user
-	 * The user for whom to fetch tweets
-	 * @param earliest
-	 * The earliest time for which to fetch tweets
-	 */
-	public UserTweetsFetcher(String user, DateTime earliest) {
-		this(user, earliest, DEFAULT_LATEST);
-	}
-
-	/**
-	 * @param user
-	 * The user for whom to fetch tweets
-	 * @param earliestTime
-	 * The earliest time for which to fetch tweets, inclusive
-	 * @param latestTime
-	 * The latest time for which to fetch tweets, inclusive
-	 */
-	public UserTweetsFetcher(String user, DateTime earliestTime,
-			DateTime latestTime) {
+	public TimelineTweetFetcher(String user) {
 		this.user = user;
-		this.earliestTime = earliestTime;
+	}
 
+	@Override
+	public List<Status> fetch(Twitter twitter) throws TwitterException {
+		return fetch(twitter, DEFAULT_EARLIEST);
+	}
+
+	@Override
+	public List<Status> fetch(Twitter twitter, DateTime earliestTime)
+			throws TwitterException {
+		return fetch(twitter, earliestTime, DEFAULT_LATEST);
+	}
+
+	@Override
+	public List<Status> fetch(Twitter twitter, DateTime earliestTime,
+			DateTime latestTime) throws TwitterException {
 		// Build the composite filter
 		List<TweetFilter> filters = new ArrayList<TweetFilter>(4);
 		filters.add(new IgnoreRepliesFilter());
 		filters.add(new IgnoreRetweetsFilter());
 		filters.add(new EarliestTimeFilter(earliestTime));
 		filters.add(new LatestTimeFilter(latestTime));
-		this.filter = new CompositeTweetFilter(filters);
-	}
+		TweetFilter filter = new CompositeTweetFilter(filters);
 
-	@Override
-	public List<Status> fetch(Twitter twitter) throws TwitterException {
 		List<Status> result = new ArrayList<Status>();
-
 		for(int page = 1;; page++) {
 			// Fetch the next page of tweets
 			Paging paging = new Paging(page, MAX_PAGE_SIZE);
@@ -88,8 +71,17 @@ public class UserTweetsFetcher implements TweetFetcher {
 				break;
 			}
 
-			// Filter the tweets and add them to the result
-			result.addAll(filter(tweets));
+			for(Status tweet : tweets) {
+				// If the tweet is too early, stop looking
+				if(new DateTime(tweet.getCreatedAt()).isBefore(earliestTime)) {
+					return result;
+				}
+
+				// Filter the tweet and add it to the result
+				if(filter.filter(tweet)) {
+					result.add(tweet);
+				}
+			}
 
 			// If the earliest tweet is too early, stop looking
 			Status earliestTweet = tweets.get(tweets.size() - 1);
@@ -100,21 +92,5 @@ public class UserTweetsFetcher implements TweetFetcher {
 		}
 
 		return result;
-	}
-
-	/**
-	 * @param unfilteredTweets
-	 * @return The provided list of tweets without any replies or retweets
-	 */
-	private List<Status> filter(List<Status> unfilteredTweets) {
-		List<Status> filteredTweets = new ArrayList<Status>();
-
-		for(Status tweet : unfilteredTweets) {
-			if(filter.filter(tweet)) {
-				filteredTweets.add(tweet);
-			}
-		}
-
-		return filteredTweets;
 	}
 }
