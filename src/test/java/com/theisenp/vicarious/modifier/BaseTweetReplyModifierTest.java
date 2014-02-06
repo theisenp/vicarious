@@ -70,7 +70,7 @@ public class BaseTweetReplyModifierTest {
 	private static class NullTweetTextModifier extends BaseTweetReplyModifier {
 
 		@Override
-		protected String respond(String user, String text) {
+		protected String respond(User user, String text) {
 			return null;
 		}
 	}
@@ -84,8 +84,8 @@ public class BaseTweetReplyModifierTest {
 			BaseTweetReplyModifier {
 
 		@Override
-		protected String respond(String user, String text) {
-			int maxLength = 140 - (user.length() + 2);
+		protected String respond(User user, String text) {
+			int maxLength = 140 - (user.getScreenName().length() + 2);
 			StringBuilder builder = new StringBuilder(maxLength + 1);
 			for(int i = 0; i < maxLength + 1; i++) {
 				builder.append("a");
@@ -102,7 +102,7 @@ public class BaseTweetReplyModifierTest {
 	private static class EmptyTweetTextModifier extends BaseTweetReplyModifier {
 
 		@Override
-		protected String respond(String user, String text) {
+		protected String respond(User user, String text) {
 			return "";
 		}
 	}

@@ -17,7 +17,7 @@ public interface TweetFetcher {
 	/**
 	 * @param twitter
 	 * An instance of the Twitter API
-	 * @return Tweets fetched based on som einternal strategy
+	 * @return Tweets fetched based on some internal strategy
 	 * @throws TwitterException
 	 */
 	public List<Status> fetch(Twitter twitter) throws TwitterException;
