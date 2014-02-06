@@ -1,6 +1,8 @@
 Vicarious
 =========
 
+[![Build Status](https://travis-ci.org/theisenp/vicarious.png?branch=version-1.1.0)](https://travis-ci.org/theisenp/vicarious)
+
 Vicarious is a library for automatically fetching tweets, optionally modifying their contents, and then reposting them. Clients can use the default implementations for fetching, modifying, posting, and logging tweets or can provide their own implementations. Vicarious is based on the [Twitter4J][1] library.
 
 Usage
