@@ -15,6 +15,8 @@ import twitter4j.TwitterException;
 
 import com.theisenp.vicarious.provider.filters.CompositeTweetFilter;
 import com.theisenp.vicarious.provider.filters.EarliestTimeFilter;
+import com.theisenp.vicarious.provider.filters.IgnoreRepliesFilter;
+import com.theisenp.vicarious.provider.filters.IgnoreRetweetsFilter;
 import com.theisenp.vicarious.provider.filters.LatestTimeFilter;
 
 /**
@@ -53,10 +55,13 @@ public class QueryTweetFetcher implements IntervalTweetFetcher {
 	@Override
 	public List<Status> fetch(Twitter twitter, DateTime earliestTime,
 			DateTime latestTime) throws TwitterException {
-		// Build the interval filter
-		TweetFilter earlyFilter = new EarliestTimeFilter(earliestTime);
-		TweetFilter lateFilter = new LatestTimeFilter(latestTime);
-		TweetFilter filter = new CompositeTweetFilter(earlyFilter, lateFilter);
+		// Build the composite filter
+		List<TweetFilter> filters = new ArrayList<TweetFilter>(4);
+		filters.add(new IgnoreRepliesFilter());
+		filters.add(new IgnoreRetweetsFilter());
+		filters.add(new EarliestTimeFilter(earliestTime));
+		filters.add(new LatestTimeFilter(latestTime));
+		TweetFilter filter = new CompositeTweetFilter(filters);
 
 		// Compute the query's upper bound
 		DateTime now = DateTime.now();

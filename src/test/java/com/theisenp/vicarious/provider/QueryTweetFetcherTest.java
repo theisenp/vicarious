@@ -100,6 +100,64 @@ public class QueryTweetFetcherTest {
 	}
 
 	@Test
+	public void testSearchSingleWithRetweets() throws TwitterException {
+		IntervalTweetFetcher fetcher = new QueryTweetFetcher("");
+
+		// Mock a page of results
+		List<Status> firstPage = new ArrayList<Status>();
+		List<Status> expected = new ArrayList<Status>();
+		for(int i = 100; i >= 1; i--) {
+			Status tweet = mockRetweet(new DateTime(i));
+			firstPage.add(tweet);
+			if(i >= 25 && i <= 75) {
+				expected.add(tweet);
+			}
+		}
+
+		// Mock the query result
+		QueryResult result = mock(QueryResult.class);
+		when(result.hasNext()).thenReturn(false);
+		when(result.getTweets()).thenReturn(firstPage).thenThrow(INVALID_PAGE);
+
+		// Mock the twitter API
+		Twitter twitter = mock(Twitter.class);
+		when(twitter.search(any(Query.class))).thenReturn(result);
+
+		DateTime early = new DateTime(25);
+		DateTime late = new DateTime(75);
+		assertThat(fetcher.fetch(twitter, early, late)).isEmpty();
+	}
+	
+	@Test
+	public void testSearchSingleWithReplies() throws TwitterException {
+		IntervalTweetFetcher fetcher = new QueryTweetFetcher("");
+		
+		// Mock a page of results
+		List<Status> firstPage = new ArrayList<Status>();
+		List<Status> expected = new ArrayList<Status>();
+		for(int i = 100; i >= 1; i--) {
+			Status tweet = mockReply(new DateTime(i));
+			firstPage.add(tweet);
+			if(i >= 25 && i <= 75) {
+				expected.add(tweet);
+			}
+		}
+		
+		// Mock the query result
+		QueryResult result = mock(QueryResult.class);
+		when(result.hasNext()).thenReturn(false);
+		when(result.getTweets()).thenReturn(firstPage).thenThrow(INVALID_PAGE);
+		
+		// Mock the twitter API
+		Twitter twitter = mock(Twitter.class);
+		when(twitter.search(any(Query.class))).thenReturn(result);
+		
+		DateTime early = new DateTime(25);
+		DateTime late = new DateTime(75);
+		assertThat(fetcher.fetch(twitter, early, late)).isEmpty();
+	}
+
+	@Test
 	public void testSearchMultiplePagesOutsideBounds() throws TwitterException {
 		IntervalTweetFetcher fetcher = new QueryTweetFetcher("");
 
@@ -185,11 +243,37 @@ public class QueryTweetFetcherTest {
 	/**
 	 * @param timestamp
 	 * The time at which the tweet was created
-	 * @return A status with the given timestamp
+	 * @return A tweet with the given timestamp
 	 */
 	private static Status mockTweet(DateTime timestamp) {
 		Status result = mock(Status.class);
 		when(result.getCreatedAt()).thenReturn(timestamp.toDate());
+		return result;
+	}
+
+	/**
+	 * @param timestamp
+	 * The time at which the tweet was created
+	 * @return A retweet with the given timestamp
+	 */
+	private static Status mockRetweet(DateTime timestamp) {
+		Status result = mock(Status.class);
+		when(result.getCreatedAt()).thenReturn(timestamp.toDate());
+		when(result.isRetweet()).thenReturn(true);
+		return result;
+	}
+
+	/**
+	 * @param timestamp
+	 * The time at which the tweet was created
+	 * @return A reply with the given timestamp
+	 */
+	private static Status mockReply(DateTime timestamp) {
+		Status result = mock(Status.class);
+		when(result.getCreatedAt()).thenReturn(timestamp.toDate());
+		when(result.getInReplyToStatusId()).thenReturn(1L);
+		when(result.getInReplyToUserId()).thenReturn(1L);
+		when(result.getInReplyToScreenName()).thenReturn("1");
 		return result;
 	}
 }
